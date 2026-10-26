@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Candy Crush Deluxe</title>
+    <meta name="description" content="Full-featured Candy Crush match-3 arcade game with striped candies, wrapped explosions, color bombs, booster equipment shop, and levels." />
+    <meta property="og:title" content="Candy Crush Deluxe" />
+    <meta property="og:description" content="Full-featured Candy Crush match-3 arcade game with striped candies, wrapped explosions, color bombs, booster equipment shop, and levels." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#ec4899" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Candy Crush" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href="/pwa-192x192.png" />
+    <script type="module" crossorigin src="/assets/index-KhxCI-mj.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CIec4fJP.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>
+
