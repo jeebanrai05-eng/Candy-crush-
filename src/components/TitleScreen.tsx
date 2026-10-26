@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { Volume2, VolumeX, Sparkles, Play, Map, ShoppingBag, FlaskConical, Award } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Play, Map, ShoppingBag, FlaskConical, Award, Download, Package } from 'lucide-react';
 import { soundCtrl } from '../utils/audio';
 
 interface TitleScreenProps {
@@ -12,6 +12,7 @@ interface TitleScreenProps {
   onOpenLevelSelect: () => void;
   onOpenShop: () => void;
   onOpenSandbox: () => void;
+  onOpenRelease: () => void;
   totalStars: number;
   unlockedLevel: number;
   coins: number;
@@ -24,6 +25,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
   onOpenLevelSelect,
   onOpenShop,
   onOpenSandbox,
+  onOpenRelease,
   totalStars,
   unlockedLevel,
   coins,
@@ -75,8 +77,8 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
       </div>
 
       {/* Top Bar Status Clusters */}
-      <header className="w-full max-w-4xl flex items-center justify-between z-10">
-        <div className="flex items-center gap-4 text-xs font-semibold tracking-wide">
+      <header className="w-full max-w-4xl flex items-center justify-between z-10 flex-wrap gap-2">
+        <div className="flex items-center gap-2 sm:gap-4 text-xs font-semibold tracking-wide">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 backdrop-blur-sm shadow-inner">
             <Award className="w-4 h-4 text-amber-400" />
             <span className="tabular-nums">{totalStars}</span>
@@ -89,16 +91,34 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
           </div>
         </div>
 
-        <button
-          onClick={() => {
-            soundCtrl.playClick();
-            onToggleMute();
-          }}
-          className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-white/90 hover:scale-105 active:scale-95"
-          title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
-        >
-          {isMuted ? <VolumeX className="w-5 h-5 text-rose-400" /> : <Volume2 className="w-5 h-5 text-emerald-300" />}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Release / APK Download Quick Button */}
+          <button
+            onClick={() => {
+              soundCtrl.playClick();
+              onOpenRelease();
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-cyan-500/20 hover:from-emerald-500/35 hover:via-teal-500/35 hover:to-cyan-500/35 border border-emerald-400/50 text-emerald-300 backdrop-blur-sm shadow-sm transition-all hover:scale-105 active:scale-95"
+            title="Download Android APK & Release Info"
+          >
+            <Download className="w-3.5 h-3.5 text-emerald-400 animate-bounce" />
+            <span className="text-xs font-bold">APK / Release</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-emerald-400 text-slate-950 font-black text-[10px]">
+              v1.2.0
+            </span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundCtrl.playClick();
+              onToggleMute();
+            }}
+            className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-white/90 hover:scale-105 active:scale-95"
+            title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
+          >
+            {isMuted ? <VolumeX className="w-5 h-5 text-rose-400" /> : <Volume2 className="w-5 h-5 text-emerald-300" />}
+          </button>
+        </div>
       </header>
 
       {/* Centerpiece Hero: Bespoke SVG Title Lockup */}
@@ -250,6 +270,17 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span>Endless Arcade Mode (High Score Frenzy)</span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundCtrl.playClick();
+              onOpenRelease();
+            }}
+            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-950/80 via-teal-950/80 to-purple-950/80 hover:from-emerald-900/90 hover:via-teal-900/90 hover:to-purple-900/90 border border-emerald-400/40 text-xs font-bold text-emerald-300 transition-all flex items-center justify-center gap-2 shadow-sm"
+          >
+            <Package className="w-4 h-4 text-emerald-400" />
+            <span>📦 Release Section &amp; APK Download (v1.2.0)</span>
           </button>
         </div>
       </div>

@@ -3,11 +3,31 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
-import { Star, Award, RotateCcw, Play, ArrowRight, X, Volume2, VolumeX, Plus, Sparkles, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  Star,
+  Award,
+  RotateCcw,
+  Play,
+  ArrowRight,
+  X,
+  Volume2,
+  VolumeX,
+  Plus,
+  Sparkles,
+  Check,
+  Download,
+  Smartphone,
+  Copy,
+  CheckCircle2,
+  ShieldCheck,
+  Zap,
+  Package
+} from 'lucide-react';
 import { CAMPAIGN_LEVELS, INITIAL_BOOSTERS } from '../utils/levels';
 import { LevelConfig, BoosterType } from '../types/game';
 import { soundCtrl } from '../utils/audio';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 
 // --- Level Select Modal ---
 interface LevelSelectModalProps {
@@ -229,6 +249,7 @@ interface PauseModalProps {
   onResume: () => void;
   onRestart: () => void;
   onExitToTitle: () => void;
+  onOpenRelease?: () => void;
   isMuted: boolean;
   onToggleMute: () => void;
 }
@@ -238,6 +259,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
   onResume,
   onRestart,
   onExitToTitle,
+  onOpenRelease,
   isMuted,
   onToggleMute
 }) => {
@@ -247,7 +269,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
         <h2 className="text-2xl font-black text-amber-300 tracking-wider uppercase mb-1">Game Paused</h2>
         <p className="text-xs text-purple-200/70 mb-6">Take a breather, the candy won't melt!</p>
 
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <button
             onClick={() => {
               soundCtrl.playClick();
@@ -269,6 +291,19 @@ export const PauseModal: React.FC<PauseModalProps> = ({
             <RotateCcw className="w-4 h-4" />
             <span>Restart Level</span>
           </button>
+
+          {onOpenRelease && (
+            <button
+              onClick={() => {
+                soundCtrl.playClick();
+                onOpenRelease();
+              }}
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600/70 to-teal-600/70 hover:from-emerald-500/80 hover:to-teal-500/80 border border-emerald-400/40 text-emerald-200 font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-sm"
+            >
+              <Download className="w-4 h-4 text-emerald-300" />
+              <span>Download APK / Release Info</span>
+            </button>
+          )}
 
           <button
             onClick={() => {
@@ -503,3 +538,195 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
     </div>
   );
 };
+
+// --- Release & APK Download Modal ---
+interface ReleaseModalProps {
+  onClose: () => void;
+}
+
+export const ReleaseModal: React.FC<ReleaseModalProps> = ({ onClose }) => {
+  const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
+  const [copied, setCopied] = useState(false);
+
+  const apkUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/candy-crush-deluxe.apk`;
+
+  const handleCopyLink = () => {
+    navigator.clipboard?.writeText(apkUrl);
+    setCopied(true);
+    soundCtrl.playClick();
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in overflow-y-auto">
+      <div className="relative w-full max-w-lg bg-gradient-to-b from-indigo-950 via-purple-950 to-slate-950 border-2 border-emerald-400/50 rounded-3xl p-5 sm:p-6 shadow-[0_25px_60px_rgba(16,185,129,0.3)] text-white overflow-hidden my-auto">
+        {/* Glow Header */}
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-72 h-40 bg-emerald-500/20 blur-3xl pointer-events-none rounded-full" />
+
+        {/* Top Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300">
+              <Package className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-amber-300 uppercase tracking-wide">
+                  Release & APK Center
+                </h2>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-400/20 border border-emerald-300/40 text-[10px] font-mono font-bold text-emerald-300">
+                  v1.2.0
+                </span>
+              </div>
+              <p className="text-[11px] text-emerald-200/70">Candy Crush Deluxe Official Android APK</p>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              soundCtrl.playClick();
+              onClose();
+            }}
+            className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-colors"
+          >
+            <X className="w-4 h-4 text-white/70" />
+          </button>
+        </div>
+
+        {/* Primary Download & Install Action Grid */}
+        <div className="space-y-3 mb-5">
+          {/* Direct APK Download Button */}
+          <a
+            href="/candy-crush-deluxe.apk"
+            download="candy-crush-deluxe.apk"
+            onClick={() => soundCtrl.playVictory()}
+            className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:via-teal-400 hover:to-cyan-500 text-slate-950 font-black text-sm sm:text-base tracking-wide uppercase transition-all shadow-[0_10px_25px_rgba(16,185,129,0.4)] active:scale-98 flex items-center justify-between border-2 border-emerald-200 group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-black/15 group-hover:scale-110 transition-transform">
+                <Download className="w-5 h-5 text-slate-950" />
+              </div>
+              <div className="text-left">
+                <div className="leading-tight">Download APK Package</div>
+                <div className="text-[11px] font-medium text-emerald-950/80">Direct Android APK (candy-crush-deluxe.apk)</div>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-slate-950 text-emerald-300 text-xs font-mono font-bold">
+              ~560 KB
+            </span>
+          </a>
+
+          {/* 1-Tap Native Install (WebAPK) */}
+          {isInstallable && !isInstalled && (
+            <button
+              onClick={async () => {
+                soundCtrl.playClick();
+                await install();
+              }}
+              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-pink-600 hover:from-amber-400 hover:via-orange-400 hover:to-pink-500 text-slate-950 font-black text-sm tracking-wide uppercase transition-all shadow-md active:scale-98 flex items-center justify-between border-2 border-amber-200"
+            >
+              <div className="flex items-center gap-2.5">
+                <Smartphone className="w-5 h-5 text-slate-950" />
+                <div className="text-left">
+                  <div className="leading-tight">Direct 1-Tap Android Install</div>
+                  <div className="text-[11px] font-medium text-amber-950/80">Installs directly to Home Screen (WebAPK)</div>
+                </div>
+              </div>
+              <span className="text-xs bg-slate-950 text-amber-300 px-2 py-0.5 rounded-full font-bold">
+                1-TAP
+              </span>
+            </button>
+          )}
+
+          {isInstalled && (
+            <div className="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 flex items-center gap-2.5 text-xs text-emerald-300 font-semibold">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>App is already installed on your device as standalone application!</span>
+            </div>
+          )}
+
+          {/* Copy Direct APK Link */}
+          <div className="flex items-center gap-2 p-2 rounded-xl bg-purple-950/60 border border-purple-400/20 text-xs">
+            <span className="text-purple-300/80 truncate flex-1 font-mono text-[11px] px-1 select-all">
+              {apkUrl}
+            </span>
+            <button
+              onClick={handleCopyLink}
+              className="px-3 py-1.5 rounded-lg bg-purple-800 hover:bg-purple-700 text-purple-200 text-xs font-bold transition-colors flex items-center gap-1 shrink-0"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-300" />
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy APK URL</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Release Package Info */}
+        <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 mb-4 text-xs">
+          <div className="flex items-center justify-between text-purple-200/90 pb-1.5 border-b border-white/10">
+            <span className="font-semibold text-white flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Package Details
+            </span>
+            <span className="font-mono text-emerald-300 font-bold">com.candycrush.deluxe</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 text-[11px]">
+            <div>
+              <span className="text-white/60">Version: </span>
+              <span className="text-white font-mono font-bold">1.2.0-stable</span>
+            </div>
+            <div>
+              <span className="text-white/60">Target: </span>
+              <span className="text-white font-semibold">Android 8.0+ / Mobile Web</span>
+            </div>
+            <div>
+              <span className="text-white/60">Frame Rate: </span>
+              <span className="text-emerald-400 font-mono font-bold">120 FPS Ultra-Smooth</span>
+            </div>
+            <div>
+              <span className="text-white/60">Offline Mode: </span>
+              <span className="text-cyan-300 font-semibold">Supported (PWA)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Installation Instructions (Nepali & English) */}
+        <div className="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-400/20 text-[11px] text-purple-200/90 space-y-2 mb-4">
+          <div className="font-bold text-amber-300 flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 text-amber-400" />
+            <span>Android Phone मा कसरी चलाउने? (Easy Guide)</span>
+          </div>
+          <ol className="list-decimal list-inside space-y-1 text-white/80">
+            <li>माथि <strong>&quot;Download APK Package&quot;</strong> button थिचेर APK फाइल download गर्नुहोस्।</li>
+            <li>वा Browser को तीनवटा थोप्ला (Menu) मा गएर <strong>&quot;Install App&quot;</strong> वा <strong>&quot;Add to Home Screen&quot;</strong> थिच्नुहोस्।</li>
+            <li>तपाईंको फोनको Home Screen मा Candy Crush Deluxe App आफै आउँछ र full screen मा 120 FPS मा चल्छ!</li>
+          </ol>
+          {isIOS && (
+            <p className="pt-1 text-pink-300/90 border-t border-purple-400/20">
+              <strong>iPhone / iOS प्रयोगकर्ता:</strong> Safari को <strong>Share</strong> button थिची <strong>&quot;Add to Home Screen&quot;</strong> छान्नुहोस्।
+            </p>
+          )}
+        </div>
+
+        {/* Close Button */}
+        <button
+          onClick={() => {
+            soundCtrl.playClick();
+            onClose();
+          }}
+          className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-all"
+        >
+          Close Release Center
+        </button>
+      </div>
+    </div>
+  );
+};
+
