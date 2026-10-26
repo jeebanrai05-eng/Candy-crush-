@@ -27,10 +27,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22 (LTS)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Node Dependencies
         run: npm install --legacy-peer-deps
@@ -49,7 +49,7 @@ jobs:
 
       - name: Sync Capacitor Android
         run: |
-          npx cap add android || true
+          test -d android || npx cap add android
           npx cap sync android
 
       - name: Build Android APK
