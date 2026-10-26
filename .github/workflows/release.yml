@@ -63,8 +63,11 @@ jobs:
         run: |
           chmod +x android/gradlew
           cd android
-          ./gradlew assembleDebug --no-daemon --stacktrace
-          APK_SRC=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+          ./gradlew assembleDebug -x lint -x test --no-daemon --stacktrace
+          APK_SRC=$(find . -name "*debug*.apk" | head -n 1)
+          if [ -z "$APK_SRC" ]; then
+            APK_SRC=$(find . -name "*.apk" | head -n 1)
+          fi
           cp "$APK_SRC" ../Candy-Crush-Deluxe.apk
 
       - name: Determine Release Tag

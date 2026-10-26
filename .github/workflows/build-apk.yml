@@ -69,13 +69,19 @@ jobs:
           chmod +x android/gradlew
           cd android
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
-            ./gradlew assembleRelease --no-daemon --stacktrace
-            APK_SRC=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
+            ./gradlew assembleRelease -x lint -x test --no-daemon --stacktrace
+            APK_SRC=$(find . -name "*release*.apk" | head -n 1)
+            if [ -z "$APK_SRC" ]; then
+              APK_SRC=$(find . -name "*.apk" | head -n 1)
+            fi
             cp "$APK_SRC" ../Candy-Crush-Deluxe-release.apk
             echo "APK_FILE=Candy-Crush-Deluxe-release.apk" >> $GITHUB_ENV
           else
-            ./gradlew assembleDebug --no-daemon --stacktrace
-            APK_SRC=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+            ./gradlew assembleDebug -x lint -x test --no-daemon --stacktrace
+            APK_SRC=$(find . -name "*debug*.apk" | head -n 1)
+            if [ -z "$APK_SRC" ]; then
+              APK_SRC=$(find . -name "*.apk" | head -n 1)
+            fi
             cp "$APK_SRC" ../Candy-Crush-Deluxe-debug.apk
             echo "APK_FILE=Candy-Crush-Deluxe-debug.apk" >> $GITHUB_ENV
           fi
