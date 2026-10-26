@@ -36,10 +36,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Install Node Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build Web Application
         run: npm run build
@@ -53,16 +52,10 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Capacitor CLI & Android Platform
+      - name: Initialize & Sync Capacitor Android
         run: |
-          npm install --save-dev @capacitor/core @capacitor/cli @capacitor/android
           npx cap add android || true
           npx cap sync android
-
-      - name: Configure Android App Name & Icons
-        run: |
-          # Copy web dist assets to Android asset bundle
-          npx cap copy android
 
       - name: Build Android APK with Gradle
         run: |
