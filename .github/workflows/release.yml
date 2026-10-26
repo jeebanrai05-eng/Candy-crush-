@@ -1,0 +1,108 @@
+name: Release Android APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release Tag (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+      release_title:
+        description: 'Release Title'
+        required: false
+        default: 'Candy Crush Deluxe Android APK Release'
+
+jobs:
+  release-apk:
+    name: Build & Publish APK Release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Node Dependencies
+        run: npm install
+
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Capacitor & Setup Android
+        run: |
+          npm install --save-dev @capacitor/core @capacitor/cli @capacitor/android
+          npx cap add android || true
+          npx cap sync android
+          npx cap copy android
+
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+          APK_SRC=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+          cp "$APK_SRC" ../Candy-Crush-Deluxe.apk
+
+      - name: Determine Release Tag
+        id: release_vars
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.tag_name }}" >> $GITHUB_OUTPUT
+            echo "title=${{ github.event.inputs.release_title }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "title=Candy Crush Deluxe ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish GitHub Release with APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_vars.outputs.tag }}
+          name: ${{ steps.release_vars.outputs.title }}
+          draft: false
+          prerelease: false
+          files: Candy-Crush-Deluxe.apk
+          generate_release_notes: true
+          body: |
+            ## 🍬 Candy Crush Deluxe Android APK
+
+            Official standalone APK release for Android devices.
+
+            ### ✨ What's Included:
+            - 🎮 Full 12-level campaign + Endless Arcade Frenzy + Combo Lab sandbox
+            - ⚡ 120 FPS high-refresh rate smooth animations
+            - 🔨 All boosters & game equipment (Lollipop Hammers, Striped/Wrapped Swappers, Color Bombs, Free Switches, Extra Moves)
+            - 🔊 Dynamic audio effects & music controls
+            - 📱 Standalone Android application package
+
+            ### 📲 Installation:
+            1. Download `Candy-Crush-Deluxe.apk` from the Assets below.
+            2. Tap the downloaded file to install on your Android device (allow install from browser if prompted).
+            3. Enjoy Candy Crush Deluxe at full speed!
+
+      - name: Action Summary
+        run: |
+          echo "### 🚀 GitHub Release Published Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "The APK has been attached to the GitHub Release section under **Releases**." >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag:** \`${{ steps.release_vars.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **File Attached:** \`Candy-Crush-Deluxe.apk\`" >> $GITHUB_STEP_SUMMARY

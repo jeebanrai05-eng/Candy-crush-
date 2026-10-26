@@ -12,8 +12,7 @@ import {
   EquipmentShopModal,
   PauseModal,
   VictoryModal,
-  GameOverModal,
-  ReleaseModal
+  GameOverModal
 } from './components/Modals';
 import { CAMPAIGN_LEVELS, loadPlayerProgress, savePlayerProgress } from './utils/levels';
 import { LevelConfig, BoosterType } from './types/game';
@@ -31,7 +30,6 @@ export default function App() {
   const [showPause, setShowPause] = useState<boolean>(false);
   const [showVictory, setShowVictory] = useState<boolean>(false);
   const [showGameOver, setShowGameOver] = useState<boolean>(false);
-  const [showRelease, setShowRelease] = useState<boolean>(false);
 
   // Victory / Game over stats
   const [finalScore, setFinalScore] = useState<number>(0);
@@ -196,7 +194,6 @@ export default function App() {
           onOpenLevelSelect={() => setShowLevelSelect(true)}
           onOpenShop={() => setShowShop(true)}
           onOpenSandbox={() => handleStartGame('sandbox')}
-          onOpenRelease={() => setShowRelease(true)}
           totalStars={totalStars}
           unlockedLevel={progress.unlockedLevel}
           coins={progress.coins}
@@ -265,10 +262,6 @@ export default function App() {
             setShowPause(false);
             setScreen('title');
           }}
-          onOpenRelease={() => {
-            setShowPause(false);
-            setShowRelease(true);
-          }}
           isMuted={isMuted}
           onToggleMute={handleToggleMute}
         />
@@ -310,13 +303,6 @@ export default function App() {
             setShowGameOver(false);
             setScreen('title');
           }}
-        />
-      )}
-
-      {/* Release & APK Download Modal */}
-      {showRelease && (
-        <ReleaseModal
-          onClose={() => setShowRelease(false)}
         />
       )}
     </div>
