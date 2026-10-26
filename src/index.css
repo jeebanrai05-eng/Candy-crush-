@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+@keyframes floatFade {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(-50%, -80%) scale(1.15);
+    opacity: 1;
+  }
+  80% {
+    transform: translate(-50%, -130%) scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(-50%, -160%) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes candyPop {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1.7) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.25) rotate(12deg);
+    filter: brightness(2.2);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(0) rotate(35deg);
+    opacity: 0;
+  }
+}
+
+@keyframes candySquash {
+  0% {
+    transform: scale3d(1.25, 0.75, 1);
+  }
+  45% {
+    transform: scale3d(0.9, 1.12, 1);
+  }
+  75% {
+    transform: scale3d(1.05, 0.96, 1);
+  }
+  100% {
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+@keyframes chocoSpin {
+  0% {
+    filter: drop-shadow(0 0 8px #f59e0b) hue-rotate(0deg);
+  }
+  100% {
+    filter: drop-shadow(0 0 16px #ec4899) hue-rotate(360deg);
+  }
+}
+
+@keyframes specialPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.06);
+    filter: brightness(1.25) drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+  }
+}
+
+.animate-float-fade {
+  animation: floatFade 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-candy-pop {
+  animation: candyPop 0.16s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-candy-squash {
+  animation: candySquash 0.26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-choco-spin {
+  animation: chocoSpin 4s linear infinite;
+}
+
+.animate-special-pulse {
+  animation: specialPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes modernShuffle {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+    opacity: 1;
+  }
+  38% {
+    transform: scale(0.18) rotate(180deg);
+    filter: brightness(2.5) drop-shadow(0 0 12px rgba(236, 72, 153, 0.8));
+    opacity: 0.25;
+  }
+  75% {
+    transform: scale(1.15) rotate(-8deg);
+    filter: brightness(1.5);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+    opacity: 1;
+  }
+}
+
+.animate-modern-shuffle {
+  animation: modernShuffle 0.62s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes candyDrop {
+  0% {
+    transform: translate3d(0, calc(var(--drop-dist, 1) * -100%), 0) scale3d(0.94, 1.06, 1);
+    opacity: 0.85;
+  }
+  70% {
+    transform: translate3d(0, 0, 0) scale3d(1.18, 0.82, 1);
+    opacity: 1;
+  }
+  88% {
+    transform: translate3d(0, -6px, 0) scale3d(0.96, 1.04, 1);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+.animate-candy-drop {
+  animation: candyDrop var(--drop-dur, 260ms) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* 120 FPS Hardware Acceleration */
+.candy-piece {
+  will-change: transform, opacity;
+  transform-origin: center center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Hardware accelerated sliding and dropping */
+.candy-sliding {
+  transition: transform 160ms cubic-bezier(0.25, 1.35, 0.5, 1);
+}
+
+.candy-board-grid {
+  touch-action: none;
+  -webkit-touch-callout: none;
+}
+
+img {
+  image-rendering: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}

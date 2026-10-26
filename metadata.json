@@ -1,0 +1,6 @@
+{
+  "name": "Candy Crush Deluxe",
+  "description": "Full-featured Candy Crush match-3 arcade game with striped candies, wrapped explosions, color bombs, booster equipment shop, and levels.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
