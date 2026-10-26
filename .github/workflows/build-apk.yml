@@ -52,6 +52,13 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Accept Android SDK Licenses & Configure SDK
+        run: |
+          mkdir -p "$ANDROID_HOME/licenses"
+          echo -e "24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n8568e64757e75e9262f3a69a19c5c2a3e5c9429c\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-license" || true
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+
       - name: Sync Capacitor Android
         run: |
           test -d android || npx cap add android
@@ -59,15 +66,15 @@ jobs:
 
       - name: Build Android APK with Gradle
         run: |
+          chmod +x android/gradlew
           cd android
-          chmod +x gradlew
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
-            ./gradlew assembleRelease --no-daemon
+            ./gradlew assembleRelease --no-daemon --stacktrace
             APK_SRC=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
             cp "$APK_SRC" ../Candy-Crush-Deluxe-release.apk
             echo "APK_FILE=Candy-Crush-Deluxe-release.apk" >> $GITHUB_ENV
           else
-            ./gradlew assembleDebug --no-daemon
+            ./gradlew assembleDebug --no-daemon --stacktrace
             APK_SRC=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
             cp "$APK_SRC" ../Candy-Crush-Deluxe-debug.apk
             echo "APK_FILE=Candy-Crush-Deluxe-debug.apk" >> $GITHUB_ENV
