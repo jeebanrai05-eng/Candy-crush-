@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import {
   Star,
   Award,
@@ -319,6 +320,7 @@ interface VictoryModalProps {
   onNextLevel: () => void;
   onReplay: () => void;
   onExitToTitle: () => void;
+  onOpenMap?: () => void;
 }
 
 export const VictoryModal: React.FC<VictoryModalProps> = ({
@@ -330,38 +332,81 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   coinsEarned,
   onNextLevel,
   onReplay,
-  onExitToTitle
+  onExitToTitle,
+  onOpenMap
 }) => {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-md bg-gradient-to-b from-pink-900 via-purple-950 to-slate-950 border-3 border-amber-400 rounded-3xl p-6 text-center shadow-[0_25px_60px_rgba(245,158,11,0.4)] overflow-hidden">
-        {/* Glow halo */}
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-amber-400/20 blur-3xl pointer-events-none rounded-full" />
+  const [displayedStars, setDisplayedStars] = useState<number>(0);
+  const [displayScore, setDisplayScore] = useState<number>(0);
+  const targetTotal = score + bonusScore;
 
-        <div className="inline-block py-1 px-4 rounded-full bg-pink-500/30 border border-pink-400/50 text-xs font-black text-pink-200 uppercase tracking-widest mb-2">
-          Sugar Crush!
+  useEffect(() => {
+    // Confetti fanfare
+    confetti({
+      particleCount: 70,
+      spread: 80,
+      origin: { y: 0.6 }
+    });
+    soundCtrl.playVictory();
+
+    // Score roll-up
+    let currentScore = 0;
+    const step = Math.max(1, Math.floor(targetTotal / 30));
+    const scoreInterval = setInterval(() => {
+      currentScore += step;
+      if (currentScore >= targetTotal) {
+        setDisplayScore(targetTotal);
+        clearInterval(scoreInterval);
+      } else {
+        setDisplayScore(currentScore);
+      }
+    }, 25);
+
+    // Sequential stars dropping in
+    const starTimers: NodeJS.Timeout[] = [];
+    for (let s = 1; s <= stars; s++) {
+      const t = setTimeout(() => {
+        setDisplayedStars(s);
+        soundCtrl.playStarDrop(s);
+      }, 400 + s * 450);
+      starTimers.push(t);
+    }
+
+    return () => {
+      clearInterval(scoreInterval);
+      starTimers.forEach(clearTimeout);
+    };
+  }, [stars, targetTotal]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
+      <div className="relative w-full max-w-md bg-gradient-to-b from-pink-900 via-purple-950 to-slate-950 border-3 border-amber-400 rounded-3xl p-6 text-center shadow-[0_25px_60px_rgba(245,158,11,0.5)] overflow-hidden">
+        {/* Glow halo */}
+        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-72 bg-amber-400/25 blur-3xl pointer-events-none rounded-full" />
+
+        <div className="inline-block py-1.5 px-5 rounded-full bg-pink-500/30 border border-pink-400/60 text-xs font-black text-pink-200 uppercase tracking-widest mb-2 shadow animate-bounce">
+          🍭 SUGAR CRUSH! 🍬
         </div>
 
         <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-300 via-yellow-200 to-amber-500 tracking-wider uppercase drop-shadow">
           Level {level.levelNumber} Cleared!
         </h2>
-        <p className="text-xs text-purple-200/80 mb-4">{level.name}</p>
+        <p className="text-xs text-purple-200/80 mb-2">{level.name}</p>
 
-        {/* Stars */}
-        <div className="flex items-center justify-center gap-3 my-4">
+        {/* 3 Animated Dropping Stars */}
+        <div className="flex items-center justify-center gap-3 my-3">
           {[1, 2, 3].map((s) => {
-            const hasStar = s <= stars;
+            const hasStar = s <= displayedStars;
             return (
               <div
                 key={s}
-                className={`relative transform transition-all duration-500 ${
-                  hasStar ? 'scale-110 drop-shadow-[0_0_15px_rgba(251,191,36,0.8)]' : 'scale-90 opacity-40'
+                className={`relative transform transition-all duration-300 ${
+                  hasStar ? 'scale-115 drop-shadow-[0_0_18px_rgba(251,191,36,0.95)]' : 'scale-85 opacity-30'
                 }`}
               >
                 <Star
                   className={`w-12 h-12 ${
                     hasStar
-                      ? 'text-amber-400 fill-amber-400'
+                      ? 'text-amber-400 fill-amber-400 animate-pulse'
                       : 'text-slate-600 fill-slate-800'
                   }`}
                 />
@@ -371,7 +416,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         </div>
 
         {/* Score & Rewards Breakdown */}
-        <div className="bg-purple-950/60 border border-purple-500/30 rounded-2xl p-4 my-4 space-y-2 text-xs">
+        <div className="bg-purple-950/70 border border-purple-500/40 rounded-2xl p-4 my-3 space-y-2 text-xs backdrop-blur-sm">
           <div className="flex justify-between items-center text-purple-200">
             <span>Base Score</span>
             <span className="font-mono font-bold text-white text-sm">{score.toLocaleString()}</span>
@@ -384,7 +429,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           )}
           <div className="pt-2 border-t border-purple-500/30 flex justify-between items-center text-sm font-bold text-white">
             <span>Total Score</span>
-            <span className="font-mono text-amber-300 text-base">{(score + bonusScore).toLocaleString()}</span>
+            <span className="font-mono text-amber-300 text-lg font-black">{displayScore.toLocaleString()}</span>
           </div>
           <div className="pt-1 flex justify-between items-center text-emerald-300 font-semibold">
             <span>Rewards Earned</span>
@@ -394,18 +439,31 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
 
         {/* Buttons */}
         <div className="space-y-2.5">
+          {/* Main Action: Continue on Map (shows A to B shifting animation) */}
           <button
             onClick={() => {
               soundCtrl.playClick();
-              onNextLevel();
+              if (onOpenMap) onOpenMap();
+              else onNextLevel();
             }}
             className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-orange-600 hover:from-amber-300 hover:to-orange-500 text-slate-950 font-black text-base tracking-wider uppercase shadow-[0_8px_20px_rgba(245,158,11,0.5)] active:scale-98 transition-all flex items-center justify-center gap-2 border border-amber-200"
           >
-            <span>Next Level</span>
+            <span>Level Map (Unlock Next)</span>
             <ArrowRight className="w-5 h-5" />
           </button>
 
           <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => {
+                soundCtrl.playClick();
+                onNextLevel();
+              }}
+              className="py-2.5 px-3 rounded-xl bg-purple-700/80 hover:bg-purple-600 border border-purple-400/50 text-xs font-bold text-white transition-all flex items-center justify-center gap-1.5 shadow"
+            >
+              <Play className="w-4 h-4 fill-white" />
+              <span>Next Level</span>
+            </button>
+
             <button
               onClick={() => {
                 soundCtrl.playClick();
@@ -416,17 +474,17 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               <RotateCcw className="w-4 h-4" />
               <span>Replay</span>
             </button>
-
-            <button
-              onClick={() => {
-                soundCtrl.playClick();
-                onExitToTitle();
-              }}
-              className="py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-xs font-bold text-purple-200 transition-all flex items-center justify-center gap-1.5"
-            >
-              <span>Map</span>
-            </button>
           </div>
+
+          <button
+            onClick={() => {
+              soundCtrl.playClick();
+              onExitToTitle();
+            }}
+            className="w-full py-2 text-xs text-purple-300/80 hover:text-white transition-colors"
+          >
+            Return to Home Screen
+          </button>
         </div>
       </div>
     </div>

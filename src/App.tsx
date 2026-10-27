@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { TitleScreen } from './components/TitleScreen';
 import { GameBoard } from './components/GameBoard';
 import { ComboLab } from './components/ComboLab';
+import { LevelMap } from './components/LevelMap';
 import {
   LevelSelectModal,
   EquipmentShopModal,
@@ -14,15 +15,19 @@ import {
   VictoryModal,
   GameOverModal
 } from './components/Modals';
-import { CAMPAIGN_LEVELS, loadPlayerProgress, savePlayerProgress } from './utils/levels';
+import { CAMPAIGN_LEVELS, INITIAL_BOOSTERS, loadPlayerProgress, savePlayerProgress } from './utils/levels';
 import { LevelConfig, BoosterType } from './types/game';
 import { soundCtrl } from './utils/audio';
 
 export default function App() {
   const [progress, setProgress] = useState(loadPlayerProgress);
-  const [screen, setScreen] = useState<'title' | 'playing' | 'sandbox'>('title');
+  const [screen, setScreen] = useState<'title' | 'playing' | 'sandbox' | 'map'>('title');
   const [mode, setMode] = useState<'levels' | 'arcade' | 'sandbox'>('levels');
   const [currentLevelNumber, setCurrentLevelNumber] = useState<number>(1);
+
+  // Level Map A to B shifting animation parameters
+  const [mapJustCompletedLevel, setMapJustCompletedLevel] = useState<number | null>(null);
+  const [mapNewlyUnlockedLevel, setMapNewlyUnlockedLevel] = useState<number | null>(null);
 
   // Modals state
   const [showLevelSelect, setShowLevelSelect] = useState<boolean>(false);
@@ -185,20 +190,96 @@ export default function App() {
   // Total stars calculated across all levels
   const totalStars = Object.values(progress.stars).reduce((sum, s) => sum + s, 0);
 
+  // Add coins
+  const handleAddCoins = (amount: number) => {
+    setProgress(prev => ({
+      ...prev,
+      coins: prev.coins + amount
+    }));
+  };
+
+  // Add booster
+  const handleAddBooster = (boosterId: string, count: number) => {
+    setProgress(prev => ({
+      ...prev,
+      boosters: {
+        ...prev.boosters,
+        [boosterId]: (prev.boosters[boosterId] || 0) + count
+      }
+    }));
+  };
+
+  // Reset progress
+  const handleResetProgress = () => {
+    const defaultBoosters: Record<string, number> = {};
+    INITIAL_BOOSTERS.forEach(b => {
+      defaultBoosters[b.id] = b.count;
+    });
+    setProgress({
+      unlockedLevel: 1,
+      stars: {},
+      highScores: {},
+      coins: 830,
+      lives: 5,
+      boosters: defaultBoosters,
+      playerName: 'Candy Champion'
+    });
+    setCurrentLevelNumber(1);
+    setGameKey(k => k + 1);
+  };
+
+  // Open Level Map with optional A to B shifting animation
+  const handleOpenMap = (fromLevel?: number, toLevel?: number) => {
+    setShowVictory(false);
+    setShowGameOver(false);
+    setShowPause(false);
+    setShowLevelSelect(false);
+    if (fromLevel && toLevel && toLevel > fromLevel) {
+      setMapJustCompletedLevel(fromLevel);
+      setMapNewlyUnlockedLevel(toLevel);
+    } else {
+      setMapJustCompletedLevel(null);
+      setMapNewlyUnlockedLevel(null);
+    }
+    setScreen('map');
+  };
+
   return (
     <div className="w-full h-full min-h-screen bg-slate-950 font-sans select-none overflow-x-hidden">
       {/* Title Screen View */}
       {screen === 'title' && (
         <TitleScreen
           onStartGame={handleStartGame}
-          onOpenLevelSelect={() => setShowLevelSelect(true)}
+          onOpenLevelSelect={() => handleOpenMap()}
           onOpenShop={() => setShowShop(true)}
           onOpenSandbox={() => handleStartGame('sandbox')}
           totalStars={totalStars}
           unlockedLevel={progress.unlockedLevel}
           coins={progress.coins}
+          lives={progress.lives}
           isMuted={isMuted}
           onToggleMute={handleToggleMute}
+          onAddCoins={handleAddCoins}
+          onAddBooster={handleAddBooster}
+          onResetProgress={handleResetProgress}
+        />
+      )}
+
+      {/* Level Map Screen (Candy Kingdom Winding Trail & A to B shifting animation) */}
+      {screen === 'map' && (
+        <LevelMap
+          unlockedLevel={progress.unlockedLevel}
+          levelStars={progress.stars}
+          levelHighScores={progress.highScores}
+          coins={progress.coins}
+          lives={progress.lives}
+          totalStars={totalStars}
+          isMuted={isMuted}
+          onToggleMute={handleToggleMute}
+          onSelectLevel={(lvl) => handleStartGame('levels', lvl)}
+          onBackToTitle={() => setScreen('title')}
+          justCompletedLevel={mapJustCompletedLevel}
+          newlyUnlockedLevel={mapNewlyUnlockedLevel}
         />
       )}
 
@@ -284,6 +365,10 @@ export default function App() {
           onExitToTitle={() => {
             setShowVictory(false);
             setScreen('title');
+          }}
+          onOpenMap={() => {
+            const nextLvl = Math.max(progress.unlockedLevel, Math.min(12, currentLevelNumber + 1));
+            handleOpenMap(currentLevelNumber, nextLvl);
           }}
         />
       )}

@@ -235,32 +235,51 @@ export interface PlayerProgress {
   stars: Record<number, number>; // levelNumber -> stars (1-3)
   highScores: Record<number, number>; // levelNumber -> score
   coins: number;
+  lives: number;
   boosters: Record<string, number>;
+  lastDailyGiftTime?: number;
+  lastSpinTime?: number;
+  lastFreeCoinsTime?: number;
+  playerName?: string;
 }
 
 const STORAGE_KEY = 'candy_crush_progress_v2';
 
 export function loadPlayerProgress(): PlayerProgress {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      return JSON.parse(raw);
-    }
-  } catch {
-    // fallback
-  }
-
   const defaultBoosters: Record<string, number> = {};
   INITIAL_BOOSTERS.forEach(b => {
     defaultBoosters[b.id] = b.count;
   });
 
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        unlockedLevel: parsed.unlockedLevel || 1,
+        stars: parsed.stars || {},
+        highScores: parsed.highScores || {},
+        coins: typeof parsed.coins === 'number' ? parsed.coins : 830,
+        lives: typeof parsed.lives === 'number' ? parsed.lives : 5,
+        boosters: { ...defaultBoosters, ...(parsed.boosters || {}) },
+        lastDailyGiftTime: parsed.lastDailyGiftTime,
+        lastSpinTime: parsed.lastSpinTime,
+        lastFreeCoinsTime: parsed.lastFreeCoinsTime,
+        playerName: parsed.playerName || 'Candy Champion'
+      };
+    }
+  } catch {
+    // fallback
+  }
+
   return {
-    unlockedLevel: 1,
-    stars: {},
-    highScores: {},
-    coins: 450,
-    boosters: defaultBoosters
+    unlockedLevel: 5,
+    stars: { 1: 3, 2: 2, 3: 1, 4: 1 },
+    highScores: { 1: 5200, 2: 7800, 3: 14500, 4: 29520 },
+    coins: 830,
+    lives: 5,
+    boosters: defaultBoosters,
+    playerName: 'Candy Champion'
   };
 }
 
@@ -271,3 +290,4 @@ export function savePlayerProgress(prog: PlayerProgress): void {
     // ignore
   }
 }
+

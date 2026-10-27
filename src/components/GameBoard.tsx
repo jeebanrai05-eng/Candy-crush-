@@ -26,6 +26,7 @@ import {
   reshuffleBoard
 } from '../utils/engine';
 import { soundCtrl } from '../utils/audio';
+import candylandLandscapeBg from '../assets/images/candyland_vibrant_landscape_1793055689018.jpg';
 
 // Candy Colors for Particle Crystals
 const CANDY_HEX: Record<CandyColor, string> = {
@@ -1219,104 +1220,197 @@ export const GameBoard: React.FC<GameBoardProps> = ({
     <div
       onPointerMove={handlePointerMove}
       onPointerUp={(e) => handlePointerUp(e)}
-      className="relative w-full h-full min-h-screen flex flex-col items-center justify-between select-none bg-slate-950 text-white overflow-hidden"
+      className="relative w-full h-full min-h-screen flex flex-col items-center justify-between select-none text-white overflow-x-hidden overflow-y-auto"
       style={{
-        backgroundImage: `radial-gradient(circle at center, rgba(30, 27, 75, 0.75), rgba(15, 23, 42, 0.95)), url('/background.jpg')`,
+        backgroundImage: `linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(240, 245, 255, 0.3) 100%), url(${candylandLandscapeBg})`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center'
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
       }}
     >
-      {/* Top Status Cluster (HUD) */}
-      <header className="w-full max-w-2xl px-4 pt-3 pb-2 flex flex-col gap-2 z-20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-full bg-pink-500/20 border border-pink-400/40 text-pink-300 font-bold text-xs uppercase tracking-wide">
-              {mode === 'levels' ? `Level ${level?.levelNumber || 1}` : mode === 'arcade' ? 'Arcade Rush' : 'Combo Lab'}
-            </span>
-            <span className="text-xs font-semibold text-white/80 hidden sm:inline">
-              {level?.name || 'Sweet Match-3'}
-            </span>
-            {/* 120 FPS High-Refresh Rate Badge */}
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-[10px] font-mono font-bold text-emerald-300 flex items-center gap-1 shadow-inner">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-              <span>{fps} FPS</span>
-            </span>
+      {/* Top Status & Mission Cluster (HUD) */}
+      <header className="w-full flex flex-col items-center z-20">
+        {/* Curved Violet Ribbon Arch Header from Reference */}
+        <div className="w-full candy-arch-header pt-2 pb-2.5 px-3 sm:px-6 rounded-b-[26px] sm:rounded-b-[32px] shadow-xl flex items-center justify-between gap-1.5 sm:gap-4 max-w-xl">
+          {/* Level Badge with Crown (Left) */}
+          <div className="flex flex-col items-center relative">
+            <span className="text-xl -mb-1.5 z-10 drop-shadow">👑</span>
+            <div className="candy-level-badge w-12 h-12 sm:w-14 sm:h-14 rounded-full flex flex-col items-center justify-center relative shadow-lg">
+              <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-purple-100 leading-tight">
+                LEVEL
+              </span>
+              <span className="text-lg sm:text-xl font-black text-white leading-none">
+                {mode === 'levels' ? (level?.levelNumber || 1) : mode === 'arcade' ? 'A' : 'S'}
+              </span>
+              {/* 4 Gold Stars around bottom */}
+              <div className="absolute -bottom-1 flex items-center justify-center gap-0.5 text-[8px] sm:text-[9px] text-amber-300 drop-shadow">
+                <span>★</span><span>★</span><span>★</span><span>★</span>
+              </div>
+            </div>
           </div>
 
-          <div className={`px-4 py-1.5 rounded-2xl border flex items-center gap-2 transition-all shadow-md ${
-            movesLeft <= 5
-              ? 'bg-rose-950/80 border-rose-500 text-rose-300 animate-pulse'
-              : 'bg-purple-950/80 border-purple-400/40 text-amber-300'
-          }`}>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-white/70">Moves</span>
-            <span className="font-mono font-black text-xl tabular-nums">{movesLeft}</span>
+          {/* Moves Oval Hero with Gold Stars (Center) */}
+          <div className="relative flex items-center justify-center">
+            <span className="text-amber-300 text-lg sm:text-2xl drop-shadow absolute -left-3.5 sm:-left-4 z-10 animate-pulse">★</span>
+            <div className={`candy-moves-oval px-5 sm:px-7 py-1 rounded-full flex flex-col items-center justify-center min-w-[105px] sm:min-w-[130px] shadow-xl ${
+              movesLeft <= 5 ? 'animate-bounce' : ''
+            }`}>
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-pink-100">
+                MOVES
+              </span>
+              <span className="font-black text-2xl sm:text-3xl text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] leading-tight tabular-nums">
+                {movesLeft}
+              </span>
+            </div>
+            <span className="text-amber-300 text-lg sm:text-2xl drop-shadow absolute -right-3.5 sm:-right-4 z-10 animate-pulse">★</span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                soundCtrl.playClick();
-                onToggleMute();
-              }}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-white/90"
-              title={isMuted ? 'Unmute' : 'Mute'}
-            >
-              <span className="text-sm">{isMuted ? '🔇' : '🔊'}</span>
-            </button>
+          {/* Score Track (Right of Moves) */}
+          <div className="flex flex-col items-center justify-center bg-purple-950/70 border-2 border-purple-300/40 rounded-2xl px-2.5 sm:px-3 py-1 min-w-[95px] sm:min-w-[120px] shadow-inner">
+            <span className="text-[8px] sm:text-[9px] font-bold text-amber-300 uppercase tracking-widest leading-none mb-0.5">
+              SCORE
+            </span>
+            <span className="text-sm sm:text-base font-black text-amber-300 font-mono leading-tight">
+              {score.toLocaleString()}
+            </span>
+            {/* Score Progress Track */}
+            <div className="w-full flex items-center gap-1 mt-0.5">
+              <span className="text-[9px] text-amber-300 leading-none">★</span>
+              <div className="w-full h-1.5 bg-black/60 rounded-full overflow-hidden border border-purple-400/30">
+                <div
+                  className="h-full bg-gradient-to-r from-yellow-400 to-amber-300 rounded-full transition-all duration-300"
+                  style={{ width: `${starProgress}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Round Blue Pause Button (Far Right) */}
+          <div className="flex items-center gap-1">
             <button
               onClick={() => {
                 soundCtrl.playClick();
                 onOpenPause();
               }}
-              className="px-3 py-1.5 rounded-xl bg-purple-900/60 hover:bg-purple-800/80 border border-purple-400/40 text-xs font-bold text-white transition-all shadow-sm"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-b from-sky-400 via-sky-500 to-blue-600 border-2 sm:border-3 border-white shadow-[0_4px_12px_rgba(2,132,199,0.5),inset_0_2px_4px_rgba(255,255,255,0.7)] flex items-center justify-center text-white active:scale-95 transition-transform"
+              title="Pause Game (Esc)"
             >
-              Pause (Esc)
+              <div className="flex items-center gap-1">
+                <div className="w-1.5 h-4 bg-white rounded-full shadow-sm" />
+                <div className="w-1.5 h-4 bg-white rounded-full shadow-sm" />
+              </div>
             </button>
           </div>
         </div>
 
-        {/* Score & Objectives */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-          <div className="col-span-1 p-2 rounded-xl bg-purple-950/60 border border-purple-500/30 flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] text-purple-200">
-              <span>Score</span>
-              <div className="flex items-center gap-0.5 text-xs">
-                {[1, 2, 3].map(s => (
-                  <span key={s} className={s <= currentStars ? 'text-amber-400 drop-shadow' : 'text-slate-600'}>★</span>
-                ))}
-              </div>
+        {/* White Rounded MISSION Card matching uploaded reference */}
+        <div className="w-full max-w-xl px-3 pt-4 pb-1 z-20">
+          <div className="candy-mission-card relative w-full rounded-[26px] sm:rounded-[32px] p-3.5 sm:p-4 text-slate-800">
+            {/* Centered Top Mission Tab with 2 Stars */}
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-5 py-0.5 rounded-full bg-gradient-to-b from-purple-600 via-purple-700 to-indigo-800 border-2 border-white text-white font-black text-xs tracking-wider uppercase shadow-md flex items-center gap-1.5 whitespace-nowrap">
+              <span className="text-amber-300 text-xs">★</span>
+              <span>MISSION</span>
+              <span className="text-amber-300 text-xs">★</span>
             </div>
-            <span className="font-mono font-black text-amber-300 text-sm tabular-nums">
-              {score.toLocaleString()}
-            </span>
-            <div className="w-full h-1.5 bg-purple-900/80 rounded-full overflow-hidden mt-1">
-              <div
-                className="h-full bg-gradient-to-r from-amber-400 to-yellow-300 transition-all duration-300"
-                style={{ width: `${starProgress}%` }}
-              />
-            </div>
-          </div>
 
-          <div className="col-span-1 sm:col-span-2 p-2 rounded-xl bg-purple-950/60 border border-purple-500/30 flex flex-wrap items-center gap-3">
-            {objectives.length > 0 ? (
-              objectives.map((obj, i) => {
-                const isDone = obj.type === 'score' ? score >= obj.target : obj.current >= obj.target;
-                return (
-                  <div key={i} className="flex items-center gap-1.5 text-[11px]">
-                    <span className="text-sm">
-                      {obj.type === 'jelly' ? '🍮' : obj.type === 'chocolate' ? '🍫' : obj.type === 'frosting' ? '🧊' : obj.color ? '🍬' : '🎯'}
-                    </span>
-                    <span className="text-purple-200/90">{obj.label}:</span>
-                    <span className={`font-mono font-bold tabular-nums ${isDone ? 'text-emerald-400' : 'text-amber-300'}`}>
-                      {obj.type === 'score' ? `${score.toLocaleString()} / ${obj.target.toLocaleString()}` : `${obj.current} / ${obj.target}`}
-                    </span>
-                    {isDone && <span className="text-emerald-400 text-xs">✓</span>}
-                  </div>
-                );
-              })
-            ) : (
-              <span className="text-xs text-purple-200">Free Play Mode</span>
-            )}
+            {/* Objectives List */}
+            <div className="flex flex-col gap-2 mt-1">
+              {objectives.length > 0 ? (
+                objectives.map((obj, i) => {
+                  const currentVal = obj.type === 'score' ? score : obj.current;
+                  const isDone = currentVal >= obj.target;
+                  const progressPct = Math.min(100, Math.round((currentVal / obj.target) * 100));
+                  const remaining = Math.max(0, obj.target - currentVal);
+
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between gap-2.5 py-1.5 px-2.5 rounded-2xl bg-purple-50/50 border border-purple-100"
+                    >
+                      {/* Left Squircle Icon Container */}
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-pink-100 via-purple-50 to-pink-200 border border-pink-200 shadow-inner flex items-center justify-center shrink-0">
+                        {obj.color ? (
+                          /* KEEP ORIGINAL CANDY DESIGN EXACTLY AS REQUESTED */
+                          <img
+                            src={`/images/${obj.color}.png`}
+                            alt={obj.color}
+                            className="w-7 h-7 sm:w-8 sm:h-8 object-contain drop-shadow"
+                          />
+                        ) : obj.type === 'jelly' ? (
+                          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-400 to-fuchsia-600 border border-white shadow-inner flex items-center justify-center text-white text-sm">
+                            🍮
+                          </div>
+                        ) : obj.type === 'chocolate' ? (
+                          <span className="text-xl">🍫</span>
+                        ) : obj.type === 'frosting' ? (
+                          <span className="text-xl">🧊</span>
+                        ) : (
+                          <span className="text-xl">⭐</span>
+                        )}
+                      </div>
+
+                      {/* Center Title and Smooth 3D Progress Bar */}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs sm:text-sm font-black text-slate-800 truncate mb-1">
+                          {obj.type === 'jelly'
+                            ? `Clear ${obj.target} Jelly Tiles`
+                            : obj.type === 'collect' && obj.color
+                            ? `Collect ${obj.target} ${obj.color} Candies`
+                            : obj.label}
+                        </div>
+                        {/* 3D Progress Bar */}
+                        <div className="w-full h-2.5 sm:h-3 bg-slate-200 rounded-full overflow-hidden p-0.5 shadow-inner">
+                          <div
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              isDone
+                                ? 'bg-gradient-to-r from-emerald-400 to-green-500 shadow-[0_0_8px_rgba(52,211,153,0.8)]'
+                                : obj.type === 'jelly'
+                                ? 'bg-gradient-to-r from-pink-400 via-rose-400 to-fuchsia-500'
+                                : 'bg-gradient-to-r from-emerald-400 to-green-500'
+                            }`}
+                            style={{ width: `${progressPct}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Right Fraction Pill & Completed / Remaining Status Badge */}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <div className="px-2.5 py-1 rounded-full bg-purple-800 text-white font-black text-[11px] font-mono shadow-sm">
+                          {currentVal} / {obj.target}
+                        </div>
+                        {isDone ? (
+                          <div className="px-2.5 py-1 rounded-full bg-emerald-500 text-white font-black text-[11px] flex items-center gap-1 shadow-sm">
+                            <span>✓</span>
+                            <span>Completed!</span>
+                          </div>
+                        ) : (
+                          <div className="px-2 py-1 rounded-xl bg-pink-100 border border-pink-200 text-pink-700 font-bold text-[11px] flex items-center gap-1">
+                            {obj.color ? (
+                              <img src={`/images/${obj.color}.png`} alt="" className="w-3.5 h-3.5 object-contain" />
+                            ) : (
+                              <span>🍮</span>
+                            )}
+                            <span>{remaining} left</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="py-2 text-center text-xs font-bold text-purple-700">
+                  Endless Arcade Mode · Match 3 or more candies to score high points!
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Tip Bar with Lightbulb */}
+            <div className="mt-2.5 p-2 px-3 rounded-2xl bg-sky-50 border border-sky-100 flex items-center gap-2 text-[11px] text-sky-900 font-medium">
+              <span className="text-base shrink-0">💡</span>
+              <span className="truncate">
+                {level?.description || "Match 3 or more candies to clear jelly and complete sweet objectives."}
+              </span>
+            </div>
           </div>
         </div>
       </header>
@@ -1345,20 +1439,20 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         )}
 
         {activeBooster && (
-          <div className="absolute top-0 z-40 py-1.5 px-4 rounded-full bg-amber-500/90 text-slate-950 font-bold text-xs uppercase tracking-wide shadow-lg animate-pulse flex items-center gap-2">
-            <span>Click any tile to target with {activeBooster}</span>
+          <div className="absolute top-0 z-40 py-2 px-5 rounded-2xl candy-btn-gold text-amber-950 font-black text-xs uppercase tracking-wide shadow-xl animate-pulse flex items-center gap-2">
+            <span>Tap any candy to use {activeBooster}</span>
             <button
               onClick={() => setActiveBooster(null)}
-              className="ml-1 px-1.5 py-0.2 rounded bg-black/20 text-white text-[10px]"
+              className="ml-2 px-2 py-0.5 rounded-lg bg-black/25 text-white text-[10px] font-bold hover:bg-black/40"
             >
               Cancel
             </button>
           </div>
         )}
 
-        {/* 9x9 Candy Board Wrapper */}
+        {/* 9x9 Candy Board Wrapper with Clean Midnight Navy & Neon Border */}
         <div
-          className="relative w-full max-w-[460px] aspect-square rounded-3xl p-2.5 sm:p-3 bg-gradient-to-b from-indigo-950/80 via-purple-950/85 to-slate-950/90 border-4 border-purple-500/40 shadow-[0_20px_50px_rgba(0,0,0,0.8)] transition-transform duration-75 overflow-hidden"
+          className="relative w-full max-w-[450px] aspect-square rounded-[26px] sm:rounded-[30px] p-2 sm:p-2.5 candy-board-clean transition-transform duration-75 overflow-hidden"
           style={{
             transform: `translate3d(${shake.x}px, ${shake.y}px, 0)`
           }}
@@ -1366,12 +1460,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({
           {/* 120 FPS Particle Canvas Overlay */}
           <canvas
             ref={canvasRef}
-            width={460}
-            height={460}
+            width={450}
+            height={450}
             className="absolute inset-0 pointer-events-none z-30 w-full h-full"
           />
 
-          {/* 9x9 Grid */}
+          {/* 9x9 Grid with Distinct Dark Checkered Cell Tiles */}
           <div className="w-full h-full grid grid-cols-9 grid-rows-9 gap-1 sm:gap-1.5 relative candy-board-grid select-none touch-none">
             {board.map((row, r) =>
               row.map((tile, c) => {
@@ -1379,6 +1473,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                 const isCursor = cursorPos.r === r && cursorPos.c === c;
                 const isSpecial = tile.special !== 'regular';
                 const isChoco = tile.special === 'choco';
+                const isCheckeredLight = (r + c) % 2 === 0;
 
                 // Real-time drag delta if being dragged
                 const isBeingDragged = dragStartPos.current?.r === r && dragStartPos.current?.c === c && dragOffset;
@@ -1390,28 +1485,30 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                     key={tile.id}
                     onPointerDown={(e) => handlePointerDown(r, c, e)}
                     onPointerUp={(e) => handlePointerUp(e, r, c)}
-                    className={`relative rounded-xl flex items-center justify-center cursor-pointer select-none touch-none ${
+                    className={`relative rounded-lg sm:rounded-xl flex items-center justify-center cursor-pointer select-none touch-none transition-shadow ${
                       isSelected
-                        ? 'ring-3 ring-amber-400 z-20 shadow-lg'
+                        ? 'ring-4 ring-amber-300 z-20 shadow-[0_0_15px_rgba(251,191,36,0.9)] scale-105'
                         : isCursor
-                        ? 'ring-2 ring-pink-400/80 z-10'
+                        ? 'ring-2 ring-pink-400 z-10'
                         : 'hover:brightness-110'
                     } ${
                       tile.jelly === 2
-                        ? 'bg-amber-400/35 border border-amber-300/40'
+                        ? 'bg-amber-400/40 border border-amber-300/50'
                         : tile.jelly === 1
-                        ? 'bg-pink-500/25 border border-pink-400/30'
-                        : 'bg-white/5 border border-white/5'
+                        ? 'bg-pink-500/30 border border-pink-400/40'
+                        : isCheckeredLight
+                        ? 'candy-tile-cell-light'
+                        : 'candy-tile-cell-dark'
                     }`}
                   >
                     {/* Jelly Visual Overlay */}
                     {tile.jelly > 0 && (
-                      <div className="absolute inset-0 pointer-events-none rounded-xl bg-gradient-to-br from-pink-400/20 to-pink-600/30 shadow-inner" />
+                      <div className="absolute inset-0 pointer-events-none rounded-lg sm:rounded-xl bg-gradient-to-br from-pink-400/25 via-pink-500/35 to-rose-600/45 shadow-inner" />
                     )}
 
                     {/* Frosting Obstacle Block */}
                     {tile.frosting > 0 && (
-                      <div className="absolute inset-0 z-10 flex items-center justify-center bg-cyan-200/40 border border-cyan-300/60 rounded-xl backdrop-blur-[1px]">
+                      <div className="absolute inset-0 z-10 flex items-center justify-center bg-cyan-200/50 border-2 border-cyan-300/70 rounded-xl backdrop-blur-[1px] shadow-inner">
                         <span className="text-xs sm:text-sm font-black text-cyan-100 drop-shadow">
                           {tile.frosting === 2 ? '🧊🧊' : '🧊'}
                         </span>
@@ -1420,7 +1517,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
                     {/* Chocolate Obstacle Block */}
                     {tile.chocolate && (
-                      <div className="absolute inset-0 z-10 flex items-center justify-center bg-amber-950 border border-amber-800 rounded-xl">
+                      <div className="absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-b from-amber-900 to-amber-950 border-2 border-amber-700 rounded-xl shadow-inner">
                         <span className="text-xs sm:text-sm font-bold text-amber-200">🍫</span>
                       </div>
                     )}
@@ -1451,10 +1548,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                           ['--drop-dur' as any]: `${Math.min(360, 180 + (tile.dropDist || 1) * 30)}ms`
                         }}
                       >
+                        {/* PRESERVES ALL ORIGINAL CANDY DESIGNS EXACTLY AS PROMISED */}
                         <img
                           src={getCandyImagePath(tile.color, tile.special, tile.chocolate, tile.frosting)}
                           alt={tile.color || 'Candy'}
-                          className="w-full h-full object-contain p-0.5 filter drop-shadow select-none pointer-events-none"
+                          className="w-full h-full object-contain p-0.5 filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] select-none pointer-events-none"
                           draggable={false}
                         />
                       </div>
@@ -1529,120 +1627,114 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         </div>
       </main>
 
-      {/* Bottom Equipment & Boosters Tray */}
-      <footer className="w-full max-w-2xl px-4 py-2.5 z-20 flex flex-col items-center gap-1.5">
-        <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-          {/* Lollipop Hammer */}
+      {/* Bottom Equipment & Boosters Tray from Reference */}
+      <footer className="w-full max-w-md px-3 py-2 z-20 flex flex-col items-center gap-1.5">
+        <div className="w-full p-2.5 rounded-[28px] sm:rounded-[32px] bg-white/95 backdrop-blur-md border-2 border-purple-200 shadow-xl flex items-center justify-around gap-1">
+          {/* 1: Hammer */}
           <button
             onClick={() => {
               soundCtrl.playClick();
               setActiveBooster(activeBooster === 'lollipop-hammer' ? null : 'lollipop-hammer');
             }}
-            className={`py-1.5 px-3 rounded-2xl border transition-all flex items-center gap-1.5 shadow-md active:scale-95 ${
-              activeBooster === 'lollipop-hammer'
-                ? 'bg-pink-500 text-white border-white ring-2 ring-pink-300'
-                : 'bg-purple-900/60 hover:bg-purple-800/80 border-purple-400/30 text-pink-200'
-            }`}
-            title="Lollipop Hammer: Smash any single tile"
+            className="flex flex-col items-center gap-1 active:scale-95 transition-transform"
+            title="Hammer: Smash any single candy or obstacle"
           >
-            <span className="text-base">🔨</span>
-            <span className="text-xs font-bold hidden sm:inline">Hammer</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/20 font-mono font-bold">
-              {mode === 'sandbox' ? '∞' : boosters['lollipop-hammer'] || 0}
+            <div className="candy-booster-circle w-11 h-11 sm:w-12 sm:h-12 rounded-full relative flex items-center justify-center">
+              <span className="text-xl sm:text-2xl drop-shadow">🔨</span>
+              <div className="candy-booster-badge absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white">
+                {mode === 'sandbox' ? '∞' : boosters['lollipop-hammer'] || 0}
+              </div>
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-purple-700 text-white font-black text-[9px] sm:text-[10px]">
+              Hammer
             </span>
           </button>
 
-          {/* Free Hand Switch */}
+          {/* 2: Swap / Glove */}
           <button
             onClick={() => {
               soundCtrl.playClick();
               setActiveBooster(activeBooster === 'free-switch' ? null : 'free-switch');
             }}
-            className={`py-1.5 px-3 rounded-2xl border transition-all flex items-center gap-1.5 shadow-md active:scale-95 ${
-              activeBooster === 'free-switch'
-                ? 'bg-purple-500 text-white border-white ring-2 ring-purple-300'
-                : 'bg-purple-900/60 hover:bg-purple-800/80 border-purple-400/30 text-purple-200'
-            }`}
-            title="Free Switch: Swap any two adjacent candies"
+            className="flex flex-col items-center gap-1 active:scale-95 transition-transform"
+            title="Swap: Free switch any two adjacent candies"
           >
-            <span className="text-base">🧤</span>
-            <span className="text-xs font-bold hidden sm:inline">Switch</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/20 font-mono font-bold">
-              {mode === 'sandbox' ? '∞' : boosters['free-switch'] || 0}
+            <div className="candy-booster-circle w-11 h-11 sm:w-12 sm:h-12 rounded-full relative flex items-center justify-center">
+              <span className="text-xl sm:text-2xl drop-shadow">🧤</span>
+              <div className="candy-booster-badge absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white">
+                {mode === 'sandbox' ? '∞' : boosters['free-switch'] || 0}
+              </div>
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-purple-700 text-white font-black text-[9px] sm:text-[10px]">
+              Swap
             </span>
           </button>
 
-          {/* Color Bomb Drop */}
+          {/* 3: Extra Move */}
           <button
-            onClick={() => {
-              soundCtrl.playClick();
-              setActiveBooster(activeBooster === 'color-bomb-drop' ? null : 'color-bomb-drop');
-            }}
-            className={`py-1.5 px-3 rounded-2xl border transition-all flex items-center gap-1.5 shadow-md active:scale-95 ${
-              activeBooster === 'color-bomb-drop'
-                ? 'bg-amber-500 text-slate-950 border-white ring-2 ring-amber-300'
-                : 'bg-purple-900/60 hover:bg-purple-800/80 border-purple-400/30 text-amber-300'
-            }`}
-            title="Color Bomb Drop: Place a Color Bomb on the board"
+            onClick={() => handleImmediateBooster('extra-moves')}
+            className="flex flex-col items-center gap-1 active:scale-95 transition-transform"
+            title="Extra Move: Add +5 moves"
           >
-            <span className="text-base">🍫</span>
-            <span className="text-xs font-bold hidden sm:inline">Choco Bomb</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/20 font-mono font-bold">
-              {mode === 'sandbox' ? '∞' : boosters['color-bomb-drop'] || 0}
+            <div className="candy-booster-circle w-11 h-11 sm:w-12 sm:h-12 rounded-full relative flex items-center justify-center">
+              <span className="text-xl sm:text-2xl drop-shadow">🔷</span>
+              <div className="candy-booster-badge absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white">
+                {mode === 'sandbox' ? '∞' : boosters['extra-moves'] || 0}
+              </div>
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-purple-700 text-white font-black text-[9px] sm:text-[10px] whitespace-nowrap">
+              Extra Move
             </span>
           </button>
 
-          {/* Candy Fish */}
+          {/* 4: Fish */}
           <button
             onClick={() => {
               soundCtrl.playClick();
               setActiveBooster(activeBooster === 'jelly-fish' ? null : 'jelly-fish');
             }}
-            className={`py-1.5 px-3 rounded-2xl border transition-all flex items-center gap-1.5 shadow-md active:scale-95 ${
-              activeBooster === 'jelly-fish'
-                ? 'bg-cyan-500 text-white border-white ring-2 ring-cyan-300'
-                : 'bg-purple-900/60 hover:bg-purple-800/80 border-purple-400/30 text-cyan-200'
-            }`}
-            title="Candy Fish: Release 3 fish to clear targets"
+            className="flex flex-col items-center gap-1 active:scale-95 transition-transform"
+            title="Fish: Send swimming fish to target objectives"
           >
-            <span className="text-base">🐠</span>
-            <span className="text-xs font-bold hidden sm:inline">Fish</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/20 font-mono font-bold">
-              {mode === 'sandbox' ? '∞' : boosters['jelly-fish'] || 0}
+            <div className="candy-booster-circle w-11 h-11 sm:w-12 sm:h-12 rounded-full relative flex items-center justify-center">
+              <span className="text-xl sm:text-2xl drop-shadow">🐠</span>
+              <div className="candy-booster-badge absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white">
+                {mode === 'sandbox' ? '∞' : boosters['jelly-fish'] || 0}
+              </div>
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-purple-700 text-white font-black text-[9px] sm:text-[10px]">
+              Fish
             </span>
           </button>
 
-          {/* Sweet Reshuffle */}
+          {/* 5: More / Color Bomb */}
           <button
-            onClick={() => handleImmediateBooster('sweet-shuffle')}
-            className="py-1.5 px-3 rounded-2xl bg-purple-900/60 hover:bg-purple-800/80 border border-purple-400/30 text-emerald-300 transition-all flex items-center gap-1.5 shadow-md active:scale-95"
-            title="Reshuffle: Shake up all candies"
+            onClick={() => {
+              soundCtrl.playClick();
+              setActiveBooster(activeBooster === 'color-bomb-drop' ? null : 'color-bomb-drop');
+            }}
+            className="flex flex-col items-center gap-1 active:scale-95 transition-transform"
+            title="More: Color bomb drop"
           >
-            <span className="text-base">🔀</span>
-            <span className="text-xs font-bold hidden sm:inline">Shuffle</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/20 font-mono font-bold">
-              {mode === 'sandbox' ? '∞' : boosters['sweet-shuffle'] || 0}
-            </span>
-          </button>
-
-          {/* +5 Moves */}
-          <button
-            onClick={() => handleImmediateBooster('extra-moves')}
-            className="py-1.5 px-3 rounded-2xl bg-purple-900/60 hover:bg-purple-800/80 border border-purple-400/30 text-orange-300 transition-all flex items-center gap-1.5 shadow-md active:scale-95"
-            title="+5 Extra Moves"
-          >
-            <span className="text-base">➕</span>
-            <span className="text-xs font-bold hidden sm:inline">+5 Moves</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/20 font-mono font-bold">
-              {mode === 'sandbox' ? '∞' : boosters['extra-moves'] || 0}
+            <div className="candy-booster-circle w-11 h-11 sm:w-12 sm:h-12 rounded-full relative flex items-center justify-center">
+              <span className="text-xl sm:text-2xl font-black text-white drop-shadow">➕</span>
+              <div className="candy-booster-badge absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white">
+                {mode === 'sandbox' ? '∞' : boosters['color-bomb-drop'] || 0}
+              </div>
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-purple-700 text-white font-black text-[9px] sm:text-[10px]">
+              More
             </span>
           </button>
         </div>
 
-        <div className="text-[11px] text-white/50 tracking-wider">
-          Drag or Click to Slide Swaps · Watch Smooth Cascade Drop
+        {/* Bottom Control Hint Pill from Reference */}
+        <div className="px-4 py-1 rounded-full bg-purple-100/95 border border-purple-200 shadow-sm flex items-center gap-1.5 text-[11px] font-bold text-purple-900">
+          <span className="text-xs">🔄</span>
+          <span>Drag or Click to Slide Swaps</span>
         </div>
       </footer>
     </div>
   );
 };
+

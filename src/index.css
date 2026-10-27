@@ -33,11 +33,11 @@
 @keyframes candyPop {
   0% {
     transform: scale(1) rotate(0deg);
-    filter: brightness(1.7) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+    filter: brightness(1.7) drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
     opacity: 1;
   }
   40% {
-    transform: scale(1.25) rotate(12deg);
+    transform: scale(1.3) rotate(12deg);
     filter: brightness(2.2);
     opacity: 0.95;
   }
@@ -77,8 +77,67 @@
     filter: brightness(1);
   }
   50% {
-    transform: scale(1.06);
-    filter: brightness(1.25) drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+    transform: scale(1.08);
+    filter: brightness(1.25) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+  }
+}
+
+@keyframes modernShuffle {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+    opacity: 1;
+  }
+  38% {
+    transform: scale(0.18) rotate(180deg);
+    filter: brightness(2.5) drop-shadow(0 0 12px rgba(236, 72, 153, 0.8));
+    opacity: 0.25;
+  }
+  75% {
+    transform: scale(1.15) rotate(-8deg);
+    filter: brightness(1.5);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+    opacity: 1;
+  }
+}
+
+@keyframes candyDrop {
+  0% {
+    transform: translate3d(0, calc(var(--drop-dist, 1) * -100%), 0) scale3d(0.94, 1.06, 1);
+    opacity: 0.85;
+  }
+  70% {
+    transform: translate3d(0, 0, 0) scale3d(1.18, 0.82, 1);
+    opacity: 1;
+  }
+  88% {
+    transform: translate3d(0, -6px, 0) scale3d(0.96, 1.04, 1);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.8), inset 0 2px 6px rgba(255, 255, 255, 0.8);
+  }
+}
+
+@keyframes bounceSlow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
   }
 }
 
@@ -106,53 +165,20 @@
   animation: specialPulse 1.8s ease-in-out infinite;
 }
 
-@keyframes modernShuffle {
-  0% {
-    transform: scale(1) rotate(0deg);
-    filter: brightness(1);
-    opacity: 1;
-  }
-  38% {
-    transform: scale(0.18) rotate(180deg);
-    filter: brightness(2.5) drop-shadow(0 0 12px rgba(236, 72, 153, 0.8));
-    opacity: 0.25;
-  }
-  75% {
-    transform: scale(1.15) rotate(-8deg);
-    filter: brightness(1.5);
-    opacity: 0.95;
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-    filter: brightness(1);
-    opacity: 1;
-  }
-}
-
 .animate-modern-shuffle {
   animation: modernShuffle 0.62s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-@keyframes candyDrop {
-  0% {
-    transform: translate3d(0, calc(var(--drop-dist, 1) * -100%), 0) scale3d(0.94, 1.06, 1);
-    opacity: 0.85;
-  }
-  70% {
-    transform: translate3d(0, 0, 0) scale3d(1.18, 0.82, 1);
-    opacity: 1;
-  }
-  88% {
-    transform: translate3d(0, -6px, 0) scale3d(0.96, 1.04, 1);
-  }
-  100% {
-    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
-    opacity: 1;
-  }
-}
-
 .animate-candy-drop {
   animation: candyDrop var(--drop-dur, 260ms) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-bounce-slow {
+  animation: bounceSlow 2.5s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 1.8s ease-in-out infinite;
 }
 
 /* 120 FPS Hardware Acceleration */
@@ -163,7 +189,6 @@
   -webkit-backface-visibility: hidden;
 }
 
-/* Hardware accelerated sliding and dropping */
 .candy-sliding {
   transition: transform 160ms cubic-bezier(0.25, 1.35, 0.5, 1);
 }
@@ -173,9 +198,194 @@
   -webkit-touch-callout: none;
 }
 
+/* 3D Glossy Candy Elements */
+.candy-btn-gold {
+  background: linear-gradient(180deg, #fde047 0%, #eab308 50%, #ca8a04 100%);
+  box-shadow: 0 4px 0 #854d0e, 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.8);
+  border: 2px solid #fef08a;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.candy-btn-gold:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #854d0e, 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.8);
+}
+
+.candy-btn-pink {
+  background: linear-gradient(180deg, #f472b6 0%, #ec4899 50%, #db2777 100%);
+  box-shadow: 0 4px 0 #9d174d, 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.8);
+  border: 2px solid #fbcfe8;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.candy-btn-pink:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #9d174d, 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.8);
+}
+
+.candy-btn-purple {
+  background: linear-gradient(180deg, #c084fc 0%, #a855f7 50%, #9333ea 100%);
+  box-shadow: 0 4px 0 #6b21a8, 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.8);
+  border: 2px solid #e9d5ff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.candy-btn-purple:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #6b21a8, 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.8);
+}
+
+.candy-btn-blue {
+  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+  box-shadow: 0 4px 0 #1e40af, 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.8);
+  border: 2px solid #bfdbfe;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.candy-btn-blue:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #1e40af, 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.8);
+}
+
+.candy-btn-green {
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
+  box-shadow: 0 4px 0 #166534, 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.8);
+  border: 2px solid #bbf7d0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.candy-btn-green:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #166534, 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* 3D Candy Frame & Borders */
+.candy-board-frame {
+  background: linear-gradient(180deg, #451a03 0%, #290e02 100%);
+  border: 6px solid #b45309;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7), inset 0 3px 6px rgba(251, 191, 36, 0.4);
+}
+
+.candy-tile-light {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15);
+}
+
+.candy-tile-dark {
+  background: rgba(0, 0, 0, 0.18);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Reference UI Specific Styles */
+.candy-arch-header {
+  background: linear-gradient(180deg, #9333ea 0%, #7e22ce 60%, #6b21a8 100%);
+  box-shadow: 0 8px 24px rgba(107, 33, 168, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+.candy-moves-oval {
+  background: linear-gradient(180deg, #e879f9 0%, #d946ef 35%, #a21caf 85%, #86198f 100%);
+  border: 4px solid #ffffff;
+  box-shadow: 0 8px 20px rgba(162, 28, 175, 0.5), inset 0 3px 6px rgba(255, 255, 255, 0.9);
+}
+
+.candy-level-badge {
+  background: linear-gradient(180deg, #c084fc 0%, #a855f7 40%, #7e22ce 100%);
+  border: 3.5px solid #ffffff;
+  box-shadow: 0 6px 16px rgba(126, 34, 206, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.candy-mission-card {
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(79, 70, 229, 0.18), 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 3px solid #e0e7ff;
+}
+
+.candy-board-clean {
+  background: #181938;
+  border: 4px solid #6366f1;
+  box-shadow: 0 16px 45px rgba(24, 25, 56, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.candy-tile-cell-light {
+  background: #23254e;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.08);
+}
+
+.candy-tile-cell-dark {
+  background: #1c1d42;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.candy-booster-circle {
+  background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 45%, #0284c7 100%);
+  border: 3px solid #ffffff;
+  box-shadow: 0 6px 14px rgba(2, 132, 199, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.candy-booster-badge {
+  background: linear-gradient(180deg, #9333ea 0%, #7e22ce 100%);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Home Screen Candy Kingdom Styles */
+.candy-cane-container {
+  background: repeating-linear-gradient(
+    -45deg,
+    #ef4444 0px,
+    #ef4444 10px,
+    #ffffff 10px,
+    #ffffff 20px
+  );
+  padding: 5px;
+  border-radius: 9999px;
+  box-shadow: 0 12px 28px rgba(22, 163, 74, 0.45), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.candy-play-green {
+  background: linear-gradient(180deg, #86efac 0%, #22c55e 35%, #16a34a 80%, #15803d 100%);
+  box-shadow: inset 0 4px 8px rgba(255, 255, 255, 0.9), inset 0 -4px 8px rgba(20, 83, 45, 0.6), 0 6px 16px rgba(0, 0, 0, 0.35);
+  border: 3px solid #bbf7d0;
+  text-shadow: 0 2px 4px rgba(20, 83, 45, 0.8);
+}
+.candy-play-green:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.7), inset 0 -2px 4px rgba(20, 83, 45, 0.6);
+}
+
+.candy-hud-pill {
+  background: linear-gradient(180deg, #a855f7 0%, #9333ea 50%, #7e22ce 100%);
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(126, 34, 206, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.candy-hud-coin {
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 60%, #b45309 100%);
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.candy-hud-heart {
+  background: linear-gradient(180deg, #ec4899 0%, #db2777 60%, #be185d 100%);
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(219, 39, 119, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.candy-side-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
+  border: 3px solid #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+}
+
+.candy-nav-dock {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border: 3px solid #ffffff;
+  box-shadow: 0 -4px 25px rgba(147, 51, 234, 0.2), 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
 img {
   image-rendering: auto;
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
 }
+
+

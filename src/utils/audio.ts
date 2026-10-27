@@ -317,6 +317,106 @@ class SoundController {
     osc.stop(now + 0.6);
   }
 
+  // Star drop chime for win screen (ascending sparkles)
+  public playStarDrop(starNumber: number = 1): void {
+    if (this.isMuted) return;
+    const ctx = this.initCtx();
+    if (!ctx) return;
+
+    const baseFreqs = [523.25, 659.25, 783.99]; // C5, E5, G5
+    const freq = baseFreqs[Math.min(starNumber - 1, baseFreqs.length - 1)];
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.18);
+
+    gain.gain.setValueAtTime(0.28, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.38);
+  }
+
+  // Level shift hop spring sound (avatar leaping from Level A to B)
+  public playLevelShiftHop(): void {
+    if (this.isMuted) return;
+    const ctx = this.initCtx();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(300, now);
+    osc.frequency.exponentialRampToValueAtTime(750, now + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(520, now + 0.3);
+
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.35);
+  }
+
+  // Level unlock fanfare bell chime
+  public playLevelUnlock(): void {
+    if (this.isMuted) return;
+    const ctx = this.initCtx();
+    if (!ctx) return;
+
+    const chords = [659.25, 783.99, 1046.50, 1318.51]; // E5, G5, C6, E6
+    const now = ctx.currentTime;
+
+    chords.forEach((f, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const delay = idx * 0.08;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f, now + delay);
+
+      gain.gain.setValueAtTime(0.2, now + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.4);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + delay);
+      osc.stop(now + delay + 0.45);
+    });
+  }
+
+  // Soft invalid move wobble
+  public playInvalidSwap(): void {
+    if (this.isMuted) return;
+    const ctx = this.initCtx();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(220, now);
+    osc.frequency.linearRampToValueAtTime(160, now + 0.12);
+
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.16);
+  }
+
   // Light UI pop
   public playClick(): void {
     if (this.isMuted) return;
